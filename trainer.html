@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rivals Aim Trainer</title>
+    <style>
+        body { margin: 0; background: #0c0c0c; color: white; font-family: sans-serif; text-align: center; }
+        #game-arena { 
+            position: relative; width: 90vw; height: 60vh; 
+            background: #161616; border: 3px solid #00ff88; 
+            margin: 20px auto; cursor: crosshair; overflow: hidden; border-radius: 15px; 
+        }
+        .target { 
+            position: absolute; width: 50px; height: 50px; 
+            background: radial-gradient(circle, #ff4444 30%, #b30000 100%); 
+            border-radius: 50%; border: 2px solid white; box-shadow: 0 0 15px #ff4444;
+        }
+        #ui { font-size: 24px; color: #00ff88; margin-top: 20px; font-weight: bold; }
+        .btn { background: #00ff88; color: black; border: none; padding: 15px 30px; font-size: 20px; cursor: pointer; border-radius: 8px; font-weight: bold; margin: 10px; }
+        .btn:hover { background: #00cc6e; transform: scale(1.05); }
+    </style>
+</head>
+<body>
+    <h1>🎯 RIVALS AIM TRAINER</h1>
+    <div id="ui">SCORE: <span id="score">0</span> | TIME: <span id="time">30</span>s</div>
+    <button class="btn" id="start-btn">START TRAINING</button>
+    <div id="game-arena"></div>
+
+    <script>
+        let score = 0; let timeLeft = 30; let gameActive = false;
+        const arena = document.getElementById('game-arena');
+        const scoreEl = document.getElementById('score');
+        const timeEl = document.getElementById('time');
+        const startBtn = document.getElementById('start-btn');
+
+        function spawnTarget() {
+            if (!gameActive) return;
+            const target = document.createElement('div');
+            target.className = 'target';
+            const x = Math.random() * (arena.clientWidth - 60);
+            const y = Math.random() * (arena.clientHeight - 60);
+            target.style.left = x + 'px';
+            target.style.top = y + 'px';
+
+            target.onclick = () => {
+                if (!gameActive) return;
+                score++;
+                scoreEl.innerText = score;
+                arena.removeChild(target);
+                spawnTarget();
+            };
+            arena.appendChild(target);
+            setTimeout(() => { if (target.parentNode === arena) { arena.removeChild(target); spawnTarget(); } }, 1200);
+        }
+
+        startBtn.onclick = () => {
+            score = 0; timeLeft = 30; gameActive = true;
+            scoreEl.innerText = score; timeEl.innerText = timeLeft;
+            startBtn.style.display = 'none'; arena.innerHTML = '';
+            spawnTarget(); spawnTarget();
+            const timer = setInterval(() => {
+                timeLeft--; timeEl.innerText = timeLeft;
+                if (timeLeft <= 0) {
+                    clearInterval(timer); gameActive = false;
+                    alert("Training Done! Final Score: " + score);
+                    startBtn.style.display = 'block'; startBtn.innerText = 'TRY AGAIN';
+                }
+            }, 1000);
+        };
+    </script>
+</body>
+</html>
